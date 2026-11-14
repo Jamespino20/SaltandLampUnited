@@ -18,6 +18,7 @@ import {
   CaretLeft,
   FilePdf,
   HandsPraying,
+  IdentificationBadge,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,7 @@ const mainLinks = [
     perm: "pubmats:read",
   },
   { href: "/admin/groups", label: "Groups", icon: Users, perm: "groups:read" },
+  { href: "/admin/leaders", label: "Leaders", icon: IdentificationBadge, perm: "groups:read" },
   {
     href: "/admin/prayer-requests",
     label: "Prayer Requests",

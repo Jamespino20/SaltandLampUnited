@@ -22,6 +22,7 @@
     "community": "Community",
     "resources": "Resources",
     "bible": "Bible",
+    "lampy": "Ask Lampy",
     "contact": "Contact"
   },
   "home": {
@@ -76,7 +77,11 @@
     },
     "leaders": {
       "title": "Meet the Leads",
-      "subtitle": "The people helping shape SLU's community and mission"
+      "subtitle": "The people helping shape SLU's community and mission",
+      "orgTitle": "Meet the Organization Leaders",
+      "orgSubtitle": "The people guiding SLU's mission and community",
+      "circleTitle": "Meet the SLUnite Circle Leaders",
+      "circleSubtitle": "The people leading our SLUnite circles"
     },
     "reachUs": "Reach Us Today!",
     "facebook": "Facebook",
@@ -188,6 +193,7 @@
     "events": "Events",
     "community": "Community",
     "resources": "Resources",
+    "askLampy": "Ask Lampy",
     "followFacebook": "Follow us on Facebook",
     "legal": "Legal",
     "privacyPolicy": "Privacy Policy",

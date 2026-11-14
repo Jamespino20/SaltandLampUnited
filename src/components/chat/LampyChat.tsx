@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import {
   PaperPlaneRight,
   Sparkle,
@@ -11,13 +12,16 @@ import {
   SealCheck,
   X,
   Minus,
+  ArrowSquareOut,
 } from "@phosphor-icons/react";
 import { brand } from "@/lib/brand";
+import { Markdown } from "@/lib/markdown";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  followUp?: boolean;
 }
 
 const suggestedPrompts = [
@@ -85,6 +89,7 @@ export function LampyChat({ open, onClose }: LampyChatProps) {
         content: data.success
           ? data.data.content
           : data.error ?? "Sorry, something went wrong. Please try again.",
+        followUp: data.success ? data.data.followUp === true : false,
       };
       setMessages((prev) => [...prev, aiMessage]);
     } catch {
@@ -175,7 +180,21 @@ export function LampyChat({ open, onClose }: LampyChatProps) {
                             : "rounded-bl-sm border border-slu-gray-200 bg-slu-offwhite text-slu-black"
                         }`}
                       >
-                        {msg.content}
+                        {msg.role === "assistant" ? (
+                          <>
+                            <Markdown content={msg.content} />
+                            {msg.followUp && (
+                              <Link
+                                href="/chat"
+                                className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-slu-blue px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-slu-blue-dark"
+                              >
+                                Open full chat <ArrowSquareOut size={12} />
+                              </Link>
+                            )}
+                          </>
+                        ) : (
+                          msg.content
+                        )}
                       </div>
                     </div>
                   ))}

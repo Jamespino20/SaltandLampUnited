@@ -15,6 +15,7 @@ export function MainSiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
   const isLogin = pathname.startsWith("/login");
+  const isFullChat = pathname.startsWith("/chat");
 
   if (isAdmin || isLogin) {
     return <>{children}</>;
@@ -31,7 +32,7 @@ export function MainSiteChrome({ children }: { children: React.ReactNode }) {
           <Footer />
         </PageTransition>
       </SmoothScroll>
-      <LampyWidget />
+      {!isFullChat && <LampyWidget />}
       <PrayerWidget />
     </MaintenanceCheck>
   );

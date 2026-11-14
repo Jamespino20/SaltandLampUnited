@@ -71,6 +71,7 @@ export function Footer() {
                 { href: "/events", label: t("events") },
                 { href: "/groups", label: t("community") },
                 { href: "/resources", label: t("resources") },
+                { href: "/chat", label: t("askLampy") },
               ].map((link) => (
                 <li key={link.href}>
                   <Link

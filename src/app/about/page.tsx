@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   Target,
   Eye,
@@ -12,35 +13,53 @@ import { brand } from "@/lib/brand";
 import { Reveal } from "@/components/animation/Reveal";
 import { WaveTransition } from "@/components/sections/WaveTransition";
 import { useTranslations } from "next-intl";
+import { LeadersCarousel, type LeaderCard } from "@/components/sections/LeadersCarousel";
 
-const leaders = [
+interface ApiLeader extends LeaderCard {
+  section?: string;
+  order?: number;
+}
+
+const fallbackLeaders: ApiLeader[] = [
   {
+    id: "fallback-cassy",
     name: "Jhulia Cassandra B. Baduria",
     role: "Executive Directives Lead",
-    image: "/images/leads/cassy.png",
+    imageUrl: "/images/leads/cassy.png",
     description:
       "Founded Salt and Lamp United in the year 2025 with a heart to build a Christ-centered community where students can know Christ, grow together in faith, and be a light to those around them.",
+    section: "organization",
+    order: 0,
   },
   {
+    id: "fallback-rain",
     name: "Rain Timothy D. Raymundo",
     role: "OIC Assist Directives / Creatives Lead",
-    image: "/images/leads/rain.png",
+    imageUrl: "/images/leads/rain.png",
     description:
       "One of the core members of Salt and Lamp United, led many fellowships and gatherings as well as inviting members.",
+    section: "organization",
+    order: 1,
   },
   {
+    id: "fallback-james",
     name: "James Bryant D. Espino",
     role: "Publications Assist Lead",
-    image: "/images/leads/james.png",
+    imageUrl: "/images/leads/james.png",
     description:
       "Handles SLU's web development and published materials. Also the author of Dawn of Dilemmas, a Biblically-inspired sci-fantasy story saga project.",
+    section: "organization",
+    order: 2,
   },
   {
+    id: "fallback-nia",
     name: "Nia C. Dela Cruz",
     role: "Publications Assist Lead",
-    image: "/images/leads/nia.png",
+    imageUrl: "/images/leads/nia.png",
     description:
       "Manages SLU's social media captions and contributes to small creatives work for Salt and Lamp United.",
+    section: "organization",
+    order: 3,
   },
 ];
 
@@ -51,6 +70,26 @@ function phoneHref(phone: string): string {
 
 export default function AboutPage() {
   const t = useTranslations("about");
+  const [apiLeaders, setApiLeaders] = useState<ApiLeader[] | null>(null);
+
+  useEffect(() => {
+    fetch("/api/leaders")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setApiLeaders(data.data);
+        } else {
+          setApiLeaders(fallbackLeaders);
+        }
+      })
+      .catch(() => setApiLeaders(fallbackLeaders));
+  }, []);
+
+  const leaders = apiLeaders ?? fallbackLeaders;
+  const organizationLeaders = leaders.filter(
+    (l) => (l.section ?? "organization") === "organization"
+  );
+  const circleLeaders = leaders.filter((l) => l.section === "circle");
   return (
     <>
       {/* Hero */}
@@ -161,61 +200,25 @@ export default function AboutPage() {
 
       {/* Leaders */}
       <section className="bg-[#F0F0F0] py-16 sm:py-20">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal className="mb-12 text-center">
             <h2 className="text-3xl font-bold text-slu-black sm:text-4xl">
               {t("leaders.title")}
             </h2>
             <p className="mt-2 text-slu-gray-500">{t("leaders.subtitle")}</p>
           </Reveal>
-          <div className="space-y-12 sm:space-y-16">
-            {leaders.map((leader, i) => {
-              const photoLeft = i % 2 === 0;
-              return (
-                <Reveal
-                  key={leader.name}
-                  x={photoLeft ? -60 : 60}
-                  delay={i * 0.05}
-                >
-                  <div
-                    className={`flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:gap-12 ${
-                      photoLeft ? "" : "sm:flex-row-reverse"
-                    }`}
-                  >
-                    {/* Photo */}
-                    <div className="shrink-0">
-                      <div className="h-36 w-36 overflow-hidden rounded-full ring-4 ring-slu-blue/20 ring-offset-4 ring-offset-[#F0F0F0] sm:h-40 sm:w-40">
-                        <img
-                          src={leader.image}
-                          alt={leader.name}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    </div>
-                    <div
-                      className={`flex-1 text-center sm:text-left ${
-                        photoLeft ? "" : "sm:ml-auto sm:text-right"
-                      }`}
-                    >
-                      <h3 className="text-xl font-bold text-slu-black sm:text-2xl">
-                        {leader.name}
-                      </h3>
-                      <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-slu-blue sm:text-sm">
-                        {leader.role}
-                      </p>
-                      <p
-                        className={`mt-3 text-sm leading-relaxed text-slu-gray-500 sm:text-base ${
-                          photoLeft ? "max-w-md" : "sm:ml-auto sm:max-w-md"
-                        }`}
-                      >
-                        {leader.description}
-                      </p>
-                    </div>
-                  </div>
-                </Reveal>
-              );
-            })}
-          </div>
+          <LeadersCarousel
+            leaders={organizationLeaders}
+            title={t("leaders.orgTitle")}
+            subtitle={t("leaders.orgSubtitle")}
+          />
+          {circleLeaders.length > 0 && (
+            <LeadersCarousel
+              leaders={circleLeaders}
+              title={t("leaders.circleTitle")}
+              subtitle={t("leaders.circleSubtitle")}
+            />
+          )}
         </div>
       </section>
 

@@ -24,6 +24,14 @@ const aileron = localFont({
 });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: [
+      { url: "/icons/slu-32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/slu-180.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   title: `${brand.name} | Youth Fellowship`,
   description: `${brand.description}.`,
   keywords: [

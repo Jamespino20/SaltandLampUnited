@@ -22,6 +22,7 @@
     "community": "Komunidad",
     "resources": "Mga Mapagkukunan",
     "bible": "Bibliya",
+    "lampy": "Tanungin si Lampy",
     "contact": "Makipag-ugnayan"
   },
   "home": {
@@ -76,7 +77,11 @@
     },
     "leaders": {
       "title": "Kilalanin ang mga Lead",
-      "subtitle": "Ang mga taong tumutulong sa hugis ng komunidad at misyon ng SLU"
+      "subtitle": "Ang mga taong tumutulong sa hugis ng komunidad at misyon ng SLU",
+      "orgTitle": "Kilalanin ang mga Lider ng Organisasyon",
+      "orgSubtitle": "Ang mga taong gumagabay sa misyon at komunidad ng SLU",
+      "circleTitle": "Kilalanin ang mga Lider ng SLUnite Circle",
+      "circleSubtitle": "Ang mga taong nangunguna sa aming mga SLUnite circle"
     },
     "reachUs": "Makipag-ugnayan Ngayon!",
     "facebook": "Facebook",
@@ -174,6 +179,7 @@
     "events": "Mga Kaganapan",
     "community": "Komunidad",
     "resources": "Mga Mapagkukunan",
+    "askLampy": "Tanungin si Lampy",
     "followFacebook": "Sundan kami sa Facebook",
     "legal": "Legal",
     "privacyPolicy": "Patakaran sa Pagkapribado",

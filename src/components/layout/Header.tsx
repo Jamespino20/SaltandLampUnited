@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/groups", key: "community" },
   { href: "/resources", key: "resources" },
   { href: "/bible", key: "bible" },
+  { href: "/chat", key: "lampy" },
   { href: "/contact", key: "contact" },
 ];
 
