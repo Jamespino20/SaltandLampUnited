@@ -17,7 +17,7 @@ export function MainSiteChrome({ children }: { children: React.ReactNode }) {
   const isLogin = pathname.startsWith("/login");
   const isFullChat = pathname.startsWith("/chat");
 
-  if (isAdmin || isLogin) {
+  if (isAdmin || isLogin || isFullChat) {
     return <>{children}</>;
   }
 

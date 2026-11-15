@@ -1,8 +1,11 @@
 import { ChatMessage } from "@/types";
 
-export const SIMPLE_MODEL = "gemini-2.0-flash";
-export const SIMPLE_MODEL_FALLBACK = "gemini-1.5-flash";
-export const COMPLEX_MODEL = "gemini-1.5-pro";
+// Verified 2026-11-15 via live ListModels + generateContent probes on this
+// API key: only the 3.5-family and flash-latest alias return 200. Everything
+// newer (2.0, 2.5, pro-latest) 404s, so the fallback chain below guards swaps.
+export const SIMPLE_MODEL = "gemini-3.5-flash-lite";
+export const SIMPLE_MODEL_FALLBACK = "gemini-flash-latest";
+export const COMPLEX_MODEL = "gemini-3.5-flash";
 
 export type ComplexityLevel = "simple" | "complex";
 
