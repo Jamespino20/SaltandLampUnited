@@ -24,7 +24,7 @@ export default function LeaderEditPage() {
     description: "",
     imageUrl: "",
     section: "organization",
-    order: "0",
+    order: "1",
   });
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function LeaderEditPage() {
             description: d.description || "",
             imageUrl: d.imageUrl || "",
             section: d.section || "organization",
-            order: String(d.order ?? 0),
+            order: String(d.order ?? 1),
           });
         } else {
           setError("Leader not found");
@@ -61,7 +61,7 @@ export default function LeaderEditPage() {
       description: form.description || undefined,
       imageUrl: form.imageUrl || undefined,
       section: form.section,
-      order: form.order === "" ? 0 : Number(form.order),
+      order: form.order === "" ? 1 : Number(form.order),
     };
 
     try {
@@ -217,6 +217,7 @@ export default function LeaderEditPage() {
             </label>
             <input
               type="number"
+              min={1}
               value={form.order}
               onChange={(e) => setForm({ ...form, order: e.target.value })}
               className="w-full rounded-xl border border-slu-gray-200 px-4 py-2.5 text-sm text-slu-black outline-none transition-colors focus:border-slu-blue focus:ring-2 focus:ring-slu-blue/20"
