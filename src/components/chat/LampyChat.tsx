@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   PaperPlaneRight,
   Sparkle,
@@ -16,6 +16,7 @@ import {
 } from "@phosphor-icons/react";
 import { brand } from "@/lib/brand";
 import { Markdown } from "@/lib/markdown";
+import { getChatSessionId } from "@/lib/chat-session";
 
 interface Message {
   id: string;
@@ -46,8 +47,10 @@ export function LampyChat({ open, onClose }: LampyChatProps) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [minimized, setMinimized] = useState(false);
+  const [convoId, setConvoId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (open && !minimized) {
@@ -60,6 +63,26 @@ export function LampyChat({ open, onClose }: LampyChatProps) {
       inputRef.current?.focus();
     }
   }, [open, minimized]);
+
+  async function openFullChat() {
+    const qna = messages
+      .filter((m) => m.id !== "greeting")
+      .map(({ role, content }) => ({ role, content }));
+    if (convoId && !convoId.startsWith("local-")) {
+      onClose();
+      router.push(`/chat?c=${encodeURIComponent(convoId)}`);
+      return;
+    }
+    // No persisted conversation (e.g. API was down): hand the QnA off via
+    // sessionStorage so /chat can recreate it.
+    try {
+      sessionStorage.setItem("slu-handoff", JSON.stringify(qna.slice(-10)));
+    } catch {
+      // ignore — /chat still opens, just without context
+    }
+    onClose();
+    router.push("/chat");
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -82,11 +105,38 @@ export function LampyChat({ open, onClose }: LampyChatProps) {
     setInput("");
     setIsLoading(true);
 
+    // Lazily create a persisted conversation so the widget QnA carries over
+    // to the full /chat page and is saved under this browser's session.
+    let cid = convoId;
+    if (!cid) {
+      try {
+        const res = await fetch("/api/chat/conversations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId: getChatSessionId(),
+            title: text.slice(0, 60),
+          }),
+        });
+        const data = await res.json();
+        if (data.success && data.data?.id) {
+          cid = data.data.id as string;
+          setConvoId(cid);
+        }
+      } catch {
+        cid = null;
+      }
+    }
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: payload }),
+        body: JSON.stringify({
+          messages: payload,
+          sessionId: getChatSessionId(),
+          conversationId: cid,
+        }),
       });
       const data = await res.json();
       const aiMessage: Message = {
@@ -158,7 +208,7 @@ export function LampyChat({ open, onClose }: LampyChatProps) {
         {!minimized && (
           <>
             {/* Messages */}
-            <div className="h-[340px] overflow-y-auto p-4">
+            <div className="h-[340px] overflow-y-auto p-4" data-lenis-prevent>
                 <div className="space-y-3">
                   {messages.map((msg) => (
                     <div
@@ -181,12 +231,13 @@ export function LampyChat({ open, onClose }: LampyChatProps) {
                           <>
                             <Markdown content={msg.content} />
                             {msg.followUp && (
-                              <Link
-                                href="/chat"
+                              <button
+                                type="button"
+                                onClick={openFullChat}
                                 className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-slu-blue px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-slu-blue-dark"
                               >
                                 Open full chat <ArrowSquareOut size={12} />
-                              </Link>
+                              </button>
                             )}
                           </>
                         ) : (

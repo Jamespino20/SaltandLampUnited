@@ -156,15 +156,18 @@ model Leader {
 }
 
 model ChatConversation {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   sessionId String?
   title     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  ipAddress String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   messages  ChatMessage[]
 
   @@index([sessionId])
   @@index([updatedAt])
+  @@index([deletedAt])
 }
 
 model ChatMessage {

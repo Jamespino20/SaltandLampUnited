@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const model = convModel();
     if (!model) return NextResponse.json({ success: true, data: [] });
     const list = await model.findMany({
-      where: { sessionId },
+      where: { sessionId, deletedAt: null },
       orderBy: { updatedAt: "desc" },
       take: 30,
       select: { id: true, title: true, createdAt: true, updatedAt: true },
@@ -34,10 +34,17 @@ export async function GET(request: Request) {
   }
 }
 
+function clientIp(request: Request): string | undefined {
+  const fwd = request.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0].trim();
+  const real = request.headers.get("x-real-ip");
+  return real?.trim() || undefined;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { sessionId, title } = body;
+    const { sessionId, title, messages } = body;
     if (!sessionId) {
       return NextResponse.json(
         { success: false, error: "sessionId is required" },
@@ -57,9 +64,36 @@ export async function POST(request: Request) {
         },
       });
     }
-    const convo = await model.create({
-      data: { sessionId, title: title ?? "New chat" },
-    });
+    const data: Record<string, unknown> = {
+      sessionId,
+      title: title ?? "New chat",
+      ipAddress: clientIp(request),
+    };
+    if (Array.isArray(messages) && messages.length > 0) {
+      data.messages = {
+        create: messages
+          .filter(
+            (m: { role?: string; content?: string }) =>
+              (m.role === "user" || m.role === "assistant") &&
+              typeof m.content === "string" &&
+              m.content.length > 0
+          )
+          .map(
+            (m: {
+              role: string;
+              content: string;
+              modelUsed?: string;
+              complexity?: string;
+            }) => ({
+              role: m.role,
+              content: m.content,
+              modelUsed: m.modelUsed,
+              complexity: m.complexity,
+            })
+          ),
+      };
+    }
+    const convo = await model.create({ data });
     return NextResponse.json({ success: true, data: convo });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Create failed";

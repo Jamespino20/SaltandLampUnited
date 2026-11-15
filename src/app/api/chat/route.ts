@@ -49,6 +49,8 @@ export async function POST(request: Request) {
               conversationId,
               role: "assistant",
               content: result.text,
+              modelUsed: result.modelUsed,
+              complexity: result.complexity,
             },
           });
           const convModel = p.chatConversation as

@@ -45,12 +45,18 @@ export default function PrivacyPage() {
             <strong>Usage Data:</strong> Anonymous analytics such as page views, browser type,
             and device information collected through Vercel Analytics.
           </li>
+          <li>
+            <strong>Chat Conversations:</strong> Messages you send to Lampy (our chat assistant)
+            and your IP address, which we log to prevent abuse, keep the community safe, and
+            improve the assistant.
+          </li>
         </ul>
 
         <h2 className="text-xl font-bold text-slu-black">2. How We Use Your Information</h2>
         <p>We use the information we collect to:</p>
         <ul className="list-disc pl-6 space-y-1">
           <li>Operate and maintain the {brand.shortName} website and community platform.</li>
+          <li>Provide and improve the Lampy chat assistant, including reviewing conversations for safety and quality.</li>
           <li>Display submitted content (testimonies, devotionals) on the public site after review.</li>
           <li>Respond to your inquiries and contact requests.</li>
           <li>Improve our website and user experience through anonymous analytics.</li>

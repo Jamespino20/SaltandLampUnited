@@ -11,18 +11,27 @@ function models(): { conv: any | null; msg: any | null } {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await context.params;
+    const { searchParams } = new URL(request.url);
+    const sessionId = searchParams.get("sessionId");
     const { conv } = models();
     if (!conv) return NextResponse.json({ success: true, data: null });
-    const convo = await conv.findUnique({
-      where: { id },
+    const convo = await conv.findFirst({
+      where: { id, deletedAt: null },
       include: { messages: { orderBy: { createdAt: "asc" } } },
     });
     if (!convo) {
+      return NextResponse.json(
+        { success: false, error: "Not found" },
+        { status: 404 }
+      );
+    }
+    // Ownership check: when the caller identifies its session, it must match.
+    if (sessionId && convo.sessionId && convo.sessionId !== sessionId) {
       return NextResponse.json(
         { success: false, error: "Not found" },
         { status: 404 }
@@ -42,7 +51,11 @@ export async function DELETE(
     const { id } = await context.params;
     const { conv } = models();
     if (!conv) return NextResponse.json({ success: true, data: null });
-    await conv.delete({ where: { id } });
+    // Soft delete: hidden from the UI, retained in the database.
+    await conv.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
     return NextResponse.json({ success: true, data: { id } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Delete failed";

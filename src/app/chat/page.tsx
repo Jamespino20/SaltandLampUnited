@@ -12,6 +12,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { Markdown } from "@/lib/markdown";
+import { getChatSessionId } from "@/lib/chat-session";
 
 interface Message {
   id: string;
@@ -35,19 +36,6 @@ const SUGGESTED = [
   "Explain the Trinity simply",
 ];
 
-function getSessionId(): string {
-  if (typeof window === "undefined") return "";
-  let sid = localStorage.getItem("slu-session-id");
-  if (!sid) {
-    sid =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID().replace(/-/g, "").slice(0, 24)
-        : `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 14)}`;
-    localStorage.setItem("slu-session-id", sid);
-  }
-  return sid;
-}
-
 export default function ChatPage() {
   const [sessionId, setSessionId] = useState("");
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -59,7 +47,7 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setSessionId(getSessionId());
+    setSessionId(getChatSessionId());
   }, []);
 
   const fetchList = useCallback(async (sid: string) => {
@@ -80,6 +68,60 @@ export default function ChatPage() {
     if (sessionId) fetchList(sessionId);
   }, [sessionId, fetchList]);
 
+  // Deep-link (?c=id) from the widget handoff, or a sessionStorage QnA
+  // handoff when the widget had no persisted conversation.
+  useEffect(() => {
+    if (!sessionId) return;
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get("c");
+    if (target) {
+      selectConversation(target);
+      return;
+    }
+    let handoff: { role: string; content: string }[] | null = null;
+    try {
+      const raw = sessionStorage.getItem("slu-handoff");
+      if (raw) {
+        handoff = JSON.parse(raw);
+        sessionStorage.removeItem("slu-handoff");
+      }
+    } catch {
+      handoff = null;
+    }
+    if (handoff && handoff.length > 0) {
+      (async () => {
+        try {
+          const firstUser = handoff.find((m) => m.role === "user");
+          const res = await fetch("/api/chat/conversations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sessionId,
+              title: firstUser?.content.slice(0, 60) ?? "New chat",
+              messages: handoff,
+            }),
+          });
+          const data = await res.json();
+          if (data.success && data.data?.id && !data.data.transient) {
+            fetchList(sessionId);
+            selectConversation(data.data.id as string);
+          } else {
+            setMessages(
+              handoff.map((m, i) => ({
+                id: `handoff-${i}`,
+                role: m.role === "user" ? "user" : "assistant",
+                content: m.content,
+              }))
+            );
+          }
+        } catch {
+          // stay on empty state — user can still chat
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
@@ -92,7 +134,10 @@ export default function ChatPage() {
       return;
     }
     try {
-      const res = await fetch(`/api/chat/conversations/${id}`);
+      const url = sessionId
+        ? `/api/chat/conversations/${id}?sessionId=${encodeURIComponent(sessionId)}`
+        : `/api/chat/conversations/${id}`;
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success && data.data?.messages) {
         setMessages(
