@@ -35,8 +35,14 @@ interface LampyChatProps {
   onClose: () => void;
 }
 
+const GREETING =
+  "Salt and Shine! I'm Lampy, your Salt and Lamp United Assistant. How can I help you today?";
+
 export function LampyChat({ open, onClose }: LampyChatProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    { id: "greeting", role: "assistant", content: GREETING },
+  ]);
+  const fresh = !messages.some((m) => m.role === "user");
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [minimized, setMinimized] = useState(false);
@@ -153,15 +159,6 @@ export function LampyChat({ open, onClose }: LampyChatProps) {
           <>
             {/* Messages */}
             <div className="h-[340px] overflow-y-auto p-4">
-              {messages.length === 0 ? (
-                <div className="flex h-full flex-col items-center justify-center text-center">
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slu-blue/10 text-slu-blue">
-                    <Sparkle size={24} />
-                  </div>
-                  <p className="font-semibold text-slu-black">How can we help?</p>
-                  <p className="mt-1 text-xs text-slu-gray-500">Ask anything about {brand.name}.</p>
-                </div>
-              ) : (
                 <div className="space-y-3">
                   {messages.map((msg) => (
                     <div
@@ -208,11 +205,10 @@ export function LampyChat({ open, onClose }: LampyChatProps) {
                   )}
                   <div ref={messagesEndRef} />
                 </div>
-              )}
             </div>
 
             {/* Suggested prompts */}
-            {messages.length === 0 && (
+            {fresh && (
               <div className="flex flex-wrap gap-1.5 px-4 pb-2">
                 {suggestedPrompts.map((p) => (
                   <button

@@ -9,7 +9,7 @@ export const COMPLEX_MODEL = "gemini-3.5-flash";
 
 export type ComplexityLevel = "simple" | "complex";
 
-export const SYSTEM_PROMPT = `You are Lampy, the Salt and Lamp United (SLU) assistant. You ONLY answer questions about SLU — our events, groups, beliefs, schedule, mission, and contact info. You may also answer Biblical questions as long as it is educational, explanatory, and helpful. Any challenge may be entertained with moderation. If asked about anything else, politely redirect: "I'm here to help with Salt and Lamp United questions." When you are opened, introduce yourself: "Salt and Shine! I'm Lampy, your Salt and Lamp United Assistant. How can I help you today?"
+export const SYSTEM_PROMPT = `You are Lampy, the Salt and Lamp United (SLU) assistant. You ONLY answer questions about SLU — our events, groups, beliefs, schedule, mission, and contact info. You may also answer Biblical questions as long as it is educational, explanatory, and helpful. Any challenge may be entertained with moderation. If asked about anything else, politely redirect: "I'm here to help with Salt and Lamp United questions." Only greet with "Salt and Shine! I'm Lampy, your Salt and Lamp United Assistant. How can I help you today?" when the user's message is a plain greeting (hi, hello, hey) with no question. If the user asks a question, answer it directly and never open with the greeting.
 
 FORMATTING RULES (always follow — your output is rendered as markdown):
 - Write in short paragraphs: max 3 sentences each, separated by blank lines.
@@ -45,6 +45,32 @@ const COMPLEX_KEYWORDS = [
   "trinity",
   "predestination",
   "suffering",
+  "bible",
+  "scripture",
+  "gospel",
+  "verse",
+  "chapter",
+  "john",
+  "matthew",
+  "mark",
+  "luke",
+  "romans",
+  "genesis",
+  "revelation",
+  "psalm",
+  "acts",
+  "parable",
+  "beatitudes",
+  "sermon on the mount",
+  "old testament",
+  "new testament",
+  "prophet",
+  "prophecy",
+  "covenant",
+  "central message",
+  "meaning of",
+  "what does",
+  "who is",
   "evolution",
   "philosophy",
   "evidence",
